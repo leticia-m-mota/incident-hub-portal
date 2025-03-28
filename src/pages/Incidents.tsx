@@ -17,8 +17,21 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Filter, Plus, Search } from 'lucide-react';
-import IncidentCard from '@/components/incidents/IncidentCard';
 import { Incident, IncidentSeverity, IncidentStatus } from '@/types/incident';
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from '@/components/ui/table';
+import StatusBadge from '@/components/incidents/StatusBadge';
+import SeverityBadge from '@/components/incidents/SeverityBadge';
+import { format } from 'date-fns';
+import { Link } from 'react-router-dom';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 
 const Incidents = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -65,6 +78,10 @@ const Incidents = () => {
     }
     return 0;
   });
+
+  const formattedDate = (dateString: string) => {
+    return format(new Date(dateString), 'MMM d, yyyy h:mm a');
+  };
 
   return (
     <div className="space-y-6">
@@ -171,23 +188,103 @@ const Incidents = () => {
         </Button>
       </div>
       
-      <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
-        {sortedIncidents.map(incident => (
-          <IncidentCard key={incident.id} incident={incident} />
-        ))}
-        
-        {sortedIncidents.length === 0 && (
-          <div className="col-span-full flex flex-col items-center justify-center p-12 text-center">
-            <div className="rounded-full bg-muted p-3 mb-4">
-              <Search className="h-6 w-6 text-muted-foreground" />
-            </div>
-            <h3 className="text-lg font-medium">No incidents found</h3>
-            <p className="text-muted-foreground mt-1">
-              Try adjusting your search or filter criteria
-            </p>
+      {sortedIncidents.length === 0 ? (
+        <div className="flex flex-col items-center justify-center p-12 text-center">
+          <div className="rounded-full bg-muted p-3 mb-4">
+            <Search className="h-6 w-6 text-muted-foreground" />
           </div>
-        )}
-      </div>
+          <h3 className="text-lg font-medium">No incidents found</h3>
+          <p className="text-muted-foreground mt-1">
+            Try adjusting your search or filter criteria
+          </p>
+        </div>
+      ) : (
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[300px]">Incident</TableHead>
+                <TableHead className="w-[120px]">Status</TableHead>
+                <TableHead className="w-[120px]">Severity</TableHead>
+                <TableHead className="w-[180px]">Created</TableHead>
+                <TableHead className="w-[160px]">Services</TableHead>
+                <TableHead className="w-[130px]">Assignees</TableHead>
+                <TableHead className="w-[130px]">Tags</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {sortedIncidents.map(incident => (
+                <TableRow key={incident.id}>
+                  <TableCell className="font-medium">
+                    <Link to={`/incidents/${incident.id}`} className="hover:text-primary transition-colors">
+                      <div className="font-medium">{incident.title}</div>
+                      <div className="text-sm text-muted-foreground">{incident.id}</div>
+                    </Link>
+                  </TableCell>
+                  <TableCell>
+                    <StatusBadge status={incident.status} />
+                  </TableCell>
+                  <TableCell>
+                    <SeverityBadge severity={incident.severity} />
+                  </TableCell>
+                  <TableCell>
+                    {formattedDate(incident.createdAt)}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      {incident.affectedServices.slice(0, 2).map(service => (
+                        <Badge key={service.id} variant="outline" className="text-xs">
+                          {service.name}
+                          <span className={`ml-1 w-2 h-2 rounded-full inline-block ${
+                            service.status === 'operational' ? 'bg-incident-low' :
+                            service.status === 'degraded' ? 'bg-incident-medium' : 'bg-incident-critical'
+                          }`}></span>
+                        </Badge>
+                      ))}
+                      {incident.affectedServices.length > 2 && (
+                        <Badge variant="outline" className="text-xs">
+                          +{incident.affectedServices.length - 2}
+                        </Badge>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex -space-x-2">
+                      {incident.assignees.slice(0, 3).map(assignee => (
+                        <Avatar key={assignee.id} className="h-7 w-7 border-2 border-background">
+                          <AvatarImage src={assignee.avatarUrl} />
+                          <AvatarFallback>
+                            {assignee.name.split(' ').map(name => name[0]).join('')}
+                          </AvatarFallback>
+                        </Avatar>
+                      ))}
+                      {incident.assignees.length > 3 && (
+                        <Avatar className="h-7 w-7 border-2 border-background">
+                          <AvatarFallback>+{incident.assignees.length - 3}</AvatarFallback>
+                        </Avatar>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      {incident.tags.slice(0, 2).map(tag => (
+                        <Badge key={tag} variant="secondary" className="text-xs">
+                          {tag}
+                        </Badge>
+                      ))}
+                      {incident.tags.length > 2 && (
+                        <Badge variant="secondary" className="text-xs">
+                          +{incident.tags.length - 2}
+                        </Badge>
+                      )}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
     </div>
   );
 };
