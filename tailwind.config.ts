@@ -72,7 +72,20 @@ export default {
           high: '#FF8C00',
           medium: '#FFD700',
           low: '#90EE90',
-          resolved: '#0EA5E9'
+          resolved: '#7e69ab' // Updated to a purple tone
+        },
+        purple: {
+          light: '#d6bcfa',
+          DEFAULT: '#9b87f5',
+          medium: '#7e69ab',
+          dark: '#6e59a5',
+          deep: '#1a1f2c',
+        },
+        grey: {
+          light: '#f1f0fb',
+          DEFAULT: '#8e9196',
+          medium: '#aaadb0',
+          dark: '#403e43',
         }
       },
       borderRadius: {
