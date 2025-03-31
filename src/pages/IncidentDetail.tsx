@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { mockIncidents } from '@/data/mockData';
@@ -39,6 +38,7 @@ import StatusBadge from '@/components/incidents/StatusBadge';
 import SeverityBadge from '@/components/incidents/SeverityBadge';
 import IncidentTimeline from '@/components/incidents/IncidentTimeline';
 import { format } from 'date-fns';
+import { Input } from "antd";
 
 const IncidentDetail = () => {
   const { id } = useParams<{ id: string }>();
