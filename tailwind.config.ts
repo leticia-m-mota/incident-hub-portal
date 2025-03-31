@@ -10,6 +10,9 @@ export default {
     "./src/**/*.{ts,tsx}",
   ],
   prefix: "",
+  corePlugins: {
+    preflight: false, // Disable preflight to avoid conflicts with Ant Design
+  },
   theme: {
     container: {
       center: true,
